@@ -1,0 +1,138 @@
+{
+  "name": "REC | Function | Standard Error Handling",
+  "description": "",
+  "version": 2,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "812a1a45",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"error_type\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Error type\"},{\"name\":\"error_message\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Error message\"},{\"name\":\"recipe_id\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Recipe ID\"},{\"name\":\"priority\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Priority\"},{\"name\":\"business_unit\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"Business unit\"}]",
+      "result_schema_json": "[{\"name\":\"result\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Result\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Error type",
+            "name": "error_type",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Error message",
+            "name": "error_message",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Recipe ID",
+            "name": "recipe_id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Priority",
+            "name": "priority",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Business unit",
+            "name": "business_unit",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "email",
+        "name": "send_mail",
+        "as": "8959c22f",
+        "keyword": "action",
+        "input": {
+          "email_type": "html",
+          "to": "n.asselin@free.fr",
+          "subject": "ERROR in recipe #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"812a1a45\",\"path\":[\"parameters\",\"recipe_id\"]}')}",
+          "body": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"812a1a45\",\"path\":[\"parameters\",\"error_type\"]}')}- #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"812a1a45\",\"path\":[\"parameters\",\"error_message\"]}')}\nPriority : #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"812a1a45\",\"path\":[\"parameters\",\"priority\"]}')}"
+        },
+        "uuid": "666be214-ef69-47a0-bff6-f36dc55ab7c4"
+      },
+      {
+        "number": 2,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "43c9607a",
+        "keyword": "action",
+        "input": {
+          "result": {
+            "result": "OK"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Result",
+                "name": "result",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Result",
+                "name": "result",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "3ce66595-67e0-4a80-a0db-2c366b817ed6"
+      }
+    ],
+    "uuid": "c7dc8834-e5ca-4ff7-9116-b0c82a1e6077"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "email",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

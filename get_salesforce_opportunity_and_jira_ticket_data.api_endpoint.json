@@ -1,0 +1,25 @@
+{
+  "name": "GET Salesforce Opportunity and Jira Ticket Data",
+  "recipe_id": {
+    "zip_name": "Workato Academy - Foundation 1&2/Foundation Level 2/Recipes/[CS] [CM] Ticket Management/cm_api_1_get_salesforce_opportunities_and_linked_jira_issues.recipe.json",
+    "name": "[CM] API | 1. GET Salesforce Opportunities and linked JIRA Issues",
+    "folder": "Workato Academy - Foundation 1&2/Foundation Level 2/Recipes/[CS] [CM] Ticket Management"
+  },
+  "api_group_id": {
+    "zip_name": "cs_cm_ticket_management_api_collection.api_group.json",
+    "name": "[CS][CM] Ticket Management API Collection",
+    "folder": ""
+  },
+  "method": "GET",
+  "path": "data",
+  "legacy": false,
+  "recipe_timeout": 30,
+  "validate_request": false,
+  "validation_formula": "",
+  "use_cache": false,
+  "cache_ttl": 600,
+  "cache_keys": [
+    "email"
+  ],
+  "cache_size_limit": 10240
+}

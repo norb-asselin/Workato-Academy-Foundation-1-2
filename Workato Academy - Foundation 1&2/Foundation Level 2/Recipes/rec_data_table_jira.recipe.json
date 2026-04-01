@@ -1,0 +1,1592 @@
+{
+  "name": "REC | Data Table <> Jira",
+  "description": "",
+  "version": 8,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "15abda3a",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "time_unit": "Minutes"
+    },
+    "input": {
+      "time_unit": "minutes",
+      "trigger_every": "5"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "integer",
+        "default": "5",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Define repeating schedule. Enter whole numbers only.\n                        This field can be set to a minimum of 5 minutes.",
+        "label": "Trigger every",
+        "name": "trigger_every",
+        "optional": false,
+        "suffix": {
+          "text": "minutes"
+        },
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_transformations",
+        "name": "query_data",
+        "as": "43cbdd3b",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "sources.0.data_source_type": "Data table",
+          "sources.0.table_id": "Imported Cases",
+          "sources.1.data_source_type": "FileStorage file",
+          "sources.1.wf_file_path": {
+            "ids": [
+              "/",
+              "/[Data Orchestration] Cases descriptions",
+              "/[Data Orchestration] Cases descriptions/Cases Description.csv"
+            ],
+            "titles": [
+              "Root directory",
+              "[Data Orchestration] Cases descriptions",
+              "Cases Description.csv"
+            ]
+          }
+        },
+        "toggleCfg": {
+          "output.csv_include_header": true,
+          "sources.1.wf_file_path": false,
+          "sources.1.allow_relaxed_schema": true
+        },
+        "input": {
+          "output": {
+            "type": "content_stream",
+            "mode": "create",
+            "file_format": "csv",
+            "excel_include_header": "false",
+            "excel_sheet_name": "Sheet 1",
+            "excel_start_from": "A1",
+            "csv_include_header": "true",
+            "csv_delimiter": "comma",
+            "csv_quote_style": "necessary",
+            "csv_quote": "double"
+          },
+          "sources": [
+            {
+              "file_format": "csv",
+              "schema_type": "defined",
+              "dynamic_table_schema": "=",
+              "excel_dynamic_table_schema": "=",
+              "parquet_dynamic_table_schema": "=",
+              "avro_dynamic_table_schema": "=",
+              "allow_relaxed_schema": "false",
+              "csv_ignore_header": "false",
+              "excel_ignore_header": "false",
+              "matching_mode": "ordered",
+              "csv_delimiter": "comma",
+              "table_name": "ImportedCases",
+              "data_source_type": "wdb_table",
+              "table_id": {
+                "zip_name": "Workato Academy - Foundation 1&2/Foundation Level 2/imported_cases.workato_db_table.json",
+                "name": "Imported Cases",
+                "folder": "Workato Academy - Foundation 1&2/Foundation Level 2"
+              }
+            },
+            {
+              "file_format": "csv",
+              "schema_type": "defined",
+              "dynamic_table_schema": "=",
+              "excel_dynamic_table_schema": "=",
+              "parquet_dynamic_table_schema": "=",
+              "avro_dynamic_table_schema": "=",
+              "allow_relaxed_schema": "false",
+              "csv_ignore_header": false,
+              "excel_ignore_header": "false",
+              "matching_mode": "ordered",
+              "table_name": "CasesDescription",
+              "data_source_type": "wf_file",
+              "wf_file_path": "/[Data Orchestration] Cases descriptions/Cases Description.csv",
+              "csv_delimiter": "comma",
+              "table_schema": "[{\"control_type\":\"text\",\"label\":\"External case ID\",\"optional\":true,\"type\":\"string\",\"name\":\"ExternalCaseID\"},{\"control_type\":\"text\",\"label\":\"Description\",\"optional\":true,\"type\":\"string\",\"name\":\"Description\"}]"
+            }
+          ],
+          "query": {
+            "sql_select_query": "SELECT ImportedCases.ExternalCaseID AS ExternalCaseID, ImportedCases.Priority AS Priority, ImportedCases.Subject AS Subject, CasesDescription.Description AS Description\nFROM ImportedCases\nINNER JOIN CasesDescription\nON ImportedCases.ExternalCaseID = CasesDescription.ExternalCaseID\nWHERE ImportedCases.Priority = 'High' AND ImportedCases.Reason = 'Performance' AND ImportedCases.\"Jira Ticket\" IS NULL;"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "integer",
+            "hint": "Number of lines in the resulting CSV",
+            "label": "Number of rows",
+            "name": "result_lines",
+            "parse_output": "integer_conversion",
+            "type": "integer"
+          },
+          {
+            "control_type": "number",
+            "hint": "Content size in bytes",
+            "label": "Content size (bytes)",
+            "name": "size",
+            "parse_output": "integer_conversion",
+            "type": "integer"
+          },
+          {
+            "control_type": "text",
+            "hint": "Contents (conditional, based on output type selected)",
+            "label": "Contents",
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "control_type": "string",
+            "label": "Query execution time",
+            "name": "query_execution_time",
+            "type": "string"
+          },
+          {
+            "control_type": "string",
+            "label": "Total processing time",
+            "name": "total_processing_time",
+            "type": "string"
+          },
+          {
+            "label": "Source schemas",
+            "name": "source_schemas",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Table name",
+                "type": "string",
+                "name": "source"
+              },
+              {
+                "label": "Schema",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Field name",
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Field type",
+                    "type": "string",
+                    "name": "type"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Is field optional",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Is field optional",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "optional"
+                    },
+                    "type": "boolean",
+                    "name": "optional"
+                  }
+                ],
+                "type": "array",
+                "name": "schema"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "label": "Output schema",
+            "name": "output_schema",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Field name",
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Field type",
+                "type": "string",
+                "name": "type"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Is field optional",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Is field optional",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "optional"
+                },
+                "type": "boolean",
+                "name": "optional"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_item_label": "Add data source",
+            "empty_list_text": "At least one data-source must be provided.",
+            "empty_list_title": "Multiple data-sources can be added to perform `join` operations.",
+            "enforce_template_mode": true,
+            "hint": "Specify data-sources to perform SQL over them",
+            "initially_expanded": true,
+            "item_label": "Source",
+            "label": "Data Sources",
+            "list_mode": "static",
+            "name": "sources",
+            "of": "object",
+            "overridden_value": [
+              {
+                "file_format": "csv",
+                "schema_type": "defined",
+                "dynamic_table_schema": "=",
+                "excel_dynamic_table_schema": "=",
+                "parquet_dynamic_table_schema": "=",
+                "avro_dynamic_table_schema": "=",
+                "allow_relaxed_schema": "false",
+                "csv_ignore_header": "false",
+                "excel_ignore_header": "false",
+                "matching_mode": "ordered",
+                "csv_delimiter": "comma",
+                "table_name": "ImportedCases",
+                "data_source_type": "wdb_table",
+                "table_id": "da0cb76b-d5ab-472f-aa12-a3999df82e53",
+                "prev_table_id": "da0cb76b-d5ab-472f-aa12-a3999df82e53"
+              },
+              {
+                "file_format": "csv",
+                "schema_type": "defined",
+                "dynamic_table_schema": "=",
+                "excel_dynamic_table_schema": "=",
+                "parquet_dynamic_table_schema": "=",
+                "avro_dynamic_table_schema": "=",
+                "allow_relaxed_schema": "false",
+                "csv_ignore_header": false,
+                "excel_ignore_header": "false",
+                "matching_mode": "ordered",
+                "table_name": "CasesDescription",
+                "data_source_type": "wf_file",
+                "wf_file_path": "/[Data Orchestration] Cases descriptions/Cases Description.csv",
+                "csv_delimiter": "comma",
+                "prev_file_path": "/[Data Orchestration] Cases descriptions/Cases Description.csv"
+              }
+            ],
+            "override": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Data source name",
+                "sticky": true,
+                "support_pills": false,
+                "extends_schema": false,
+                "optional": false,
+                "hint": "Provide an alias name for the data source. E.g: contacts, orders. This name is to be used in the query.",
+                "type": "string",
+                "name": "table_name"
+              },
+              {
+                "control_type": "select",
+                "label": "Data source type",
+                "extends_schema": true,
+                "change_on_blur": true,
+                "pick_list": "data_sources_list",
+                "hint": "                   Provide the data source type. To pass file content directly from upstream action/trigger chooser Content Stream.\n                   You can also refer to a file in Workato FileStorage or a table from Data tables.\n",
+                "type": "string",
+                "name": "data_source_type"
+              },
+              {
+                "control_type": "text-area",
+                "label": "Content input stream",
+                "sticky": true,
+                "supports_byte_streaming": true,
+                "change_on_blur": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type === 'content_stream'",
+                "optionalExpression": "parentInput.data_source_type && parentInput.data_source_type !== 'content_stream'",
+                "optional": true,
+                "hint": "Pass the contents or file contents reference pill here from an upstream action or trigger.",
+                "type": "string",
+                "name": "source_stream"
+              },
+              {
+                "control_type": "text",
+                "label": "FileStorage file",
+                "sticky": true,
+                "change_on_blur": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type === 'wf_file'",
+                "optionalExpression": "parentInput.data_source_type && parentInput.data_source_type !== 'wf_file'",
+                "extends_schema": true,
+                "optional": true,
+                "mark_as_required": true,
+                "toggle_hint": "Enter file path",
+                "toggle_field": {
+                  "control_type": "tree",
+                  "label": "FileStorage file",
+                  "toggle_hint": "Choose a file",
+                  "tree_options": {
+                    "selectable_folder": false
+                  },
+                  "pick_list": "wf_files_list",
+                  "extends_schema": true,
+                  "toggle_to_primary_hint": "Enter file path",
+                  "toggle_to_secondary_hint": "Choose a file",
+                  "hint": "Choose the file to fetch the data",
+                  "type": "string",
+                  "name": "wf_file_path"
+                },
+                "hint": "                   Provide the FileStorage file full path here to fetch the data. For example, “samplepath/filename.csv”.\n",
+                "type": "string",
+                "name": "wf_file_path"
+              },
+              {
+                "control_type": "select",
+                "label": "Data table",
+                "pick_list": "current_user_table_list",
+                "extends_schema": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type === 'wdb_table'",
+                "optionalExpression": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table'",
+                "optional": true,
+                "hint": "Select a data table to fetch the data.",
+                "type": "string",
+                "name": "table_id"
+              },
+              {
+                "control_type": "select",
+                "label": "File format",
+                "extends_schema": true,
+                "change_on_blur": true,
+                "default": "csv",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table'",
+                "optional": true,
+                "sticky": true,
+                "pick_list": "file_formats_list",
+                "hint": "Choose the data format.",
+                "type": "string",
+                "name": "file_format"
+              },
+              {
+                "control_type": "code",
+                "label": "jq expression",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'json'",
+                "optionalExpression": "parentInput.file_format && parentInput.file_format !== 'json'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": false,
+                "hint": "Provide a jq expression to convert your JSON data into CSV format. For example, <code>.items[] | [ keys[] as $k | .[$k] ] | @csv</code>.",
+                "type": "string",
+                "name": "json_jq_expression"
+              },
+              {
+                "control_type": "text",
+                "label": "Worksheet",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'excel'",
+                "optionalExpression": "parentInput.file_format && parentInput.file_format !== 'excel'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": false,
+                "hint": "Provide the sheet name from the Excel file where the data is available.",
+                "type": "string",
+                "name": "excel_sheet_name"
+              },
+              {
+                "control_type": "text",
+                "label": "Range",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'excel'",
+                "optionalExpression": "parentInput.file_format !== 'excel'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": false,
+                "hint": "Provide the cell range of the data. e.g A5:F2000. Make sure to include the header row if the schema type selected is ‘Infer’.",
+                "type": "string",
+                "name": "excel_range"
+              },
+              {
+                "control_type": "select",
+                "label": "Column schema type",
+                "extends_schema": true,
+                "change_on_blur": true,
+                "default": "defined",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table'",
+                "optional": true,
+                "sticky": true,
+                "pick_list": [
+                  [
+                    "Defined",
+                    "defined"
+                  ],
+                  [
+                    "Dynamic",
+                    "dynamic"
+                  ],
+                  [
+                    "Infer",
+                    "infer"
+                  ]
+                ],
+                "hint": "                   Choose ‘Define' to provide column names and types explicitly in the action.\n                   Choose ‘Dynamic’ to pass schema as array data pill from upstream action.\n                   Choose ‘Infer’ to infer column names and schema automatically from the data and its header.\n",
+                "type": "string",
+                "name": "schema_type"
+              },
+              {
+                "control_type": "schema-designer",
+                "label": "Data schema",
+                "sample_data_type": "csv",
+                "add_field_label": "Add column name",
+                "exclude_fields": [
+                  "hint",
+                  "parentId"
+                ],
+                "exclude_fields_types": [
+                  "array",
+                  "object"
+                ],
+                "empty_schema_title": "Provide column names in your CSV.",
+                "empty_schema_message": "<button type=\"button\" data-action=\"generateSchema\">Use a sample CSV file</button> to input all column names at once.",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' &&(parentInput.file_format === 'csv' || parentInput.file_format === 'json') &&parentInput.schema_type === 'defined'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' || (parentInput.file_format !== 'csv' &&parentInput.file_format !== 'json') || parentInput.schema_type !== 'defined'",
+                "optional": true,
+                "mark_as_required": true,
+                "enforce_generated_schema_fields_optional": true,
+                "hint": "Describe the column schema of the data in this data source.",
+                "type": "string",
+                "name": "table_schema"
+              },
+              {
+                "control_type": "list",
+                "label": "Data schema",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' &&(parentInput.file_format === 'csv' || parentInput.file_format === 'json') &&parentInput.schema_type === 'dynamic'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' || (parentInput.file_format  !== 'csv' &&parentInput.file_format !== 'json') || parentInput.schema_type !== 'dynamic'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": true,
+                "send_list_schema": true,
+                "drag_list": true,
+                "default": "=",
+                "hint": "Provide the data pill with a schema.",
+                "type": "string",
+                "name": "dynamic_table_schema"
+              },
+              {
+                "control_type": "schema-designer",
+                "label": "Data schema",
+                "sample_data_type": "excel",
+                "add_field_label": "Add column name",
+                "exclude_fields": [
+                  "hint",
+                  "parentId"
+                ],
+                "exclude_fields_types": [
+                  "array",
+                  "object"
+                ],
+                "empty_schema_title": "Provide column names in your data source.",
+                "empty_schema_message": "Provide all column names within the selected range",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'excel' && parentInput.schema_type === 'defined'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' ||parentInput.file_format !== 'excel' || parentInput.schema_type !== 'defined'",
+                "optional": true,
+                "mark_as_required": true,
+                "enforce_generated_schema_fields_optional": true,
+                "hint": "Describe the schema of the columns of the data source.",
+                "type": "string",
+                "name": "excel_table_schema"
+              },
+              {
+                "control_type": "list",
+                "label": "Data schema",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'excel' && parentInput.schema_type === 'dynamic'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' ||parentInput.file_format !== 'excel' ||parentInput.schema_type !== 'dynamic'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": true,
+                "send_list_schema": true,
+                "drag_list": true,
+                "default": "=",
+                "hint": "Provide the sheet name from the Excel file where the data is available.",
+                "type": "string",
+                "name": "excel_dynamic_table_schema"
+              },
+              {
+                "control_type": "schema-designer",
+                "label": "Data schema",
+                "sample_data_type": "parquet",
+                "add_field_label": "Add column name",
+                "exclude_fields": [
+                  "hint",
+                  "parentId"
+                ],
+                "exclude_fields_types": [
+                  "array",
+                  "object"
+                ],
+                "empty_schema_title": "Provide column names in your Parquet data source.",
+                "empty_schema_message": "Provide all column names within the selected range",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'parquet' && parentInput.schema_type === 'defined'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' ||parentInput.file_format !== 'parquet' || parentInput.schema_type !== 'defined'",
+                "optional": true,
+                "mark_as_required": true,
+                "enforce_generated_schema_fields_optional": true,
+                "hint": "Describe the schema of the columns of the Parquet data source.",
+                "type": "string",
+                "name": "parquet_table_schema"
+              },
+              {
+                "control_type": "list",
+                "label": "Data schema",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'parquet' && parentInput.schema_type === 'dynamic'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' ||parentInput.file_format !== 'parquet' || parentInput.schema_type !== 'dynamic'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": true,
+                "send_list_schema": true,
+                "drag_list": true,
+                "default": "=",
+                "hint": "Provide the data pill with a schema for the Parquet data source.",
+                "type": "string",
+                "name": "parquet_dynamic_table_schema"
+              },
+              {
+                "control_type": "schema-designer",
+                "label": "Data schema",
+                "sample_data_type": "avro",
+                "add_field_label": "Add column name",
+                "exclude_fields": [
+                  "hint",
+                  "parentId"
+                ],
+                "exclude_fields_types": [
+                  "array",
+                  "object"
+                ],
+                "empty_schema_title": "Provide column names in your Avro data source.",
+                "empty_schema_message": "Provide all column names within the selected range",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'avro' && parentInput.schema_type === 'defined'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' || parentInput.file_format !== 'avro' || parentInput.schema_type !== 'defined'",
+                "optional": true,
+                "mark_as_required": true,
+                "enforce_generated_schema_fields_optional": true,
+                "hint": "Describe the schema of the columns of the Avro data source.",
+                "type": "string",
+                "name": "avro_table_schema"
+              },
+              {
+                "control_type": "list",
+                "label": "Data schema",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'avro' && parentInput.schema_type === 'dynamic'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' || parentInput.file_format !== 'avro' || parentInput.schema_type !== 'dynamic'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": true,
+                "send_list_schema": true,
+                "drag_list": true,
+                "default": "=",
+                "hint": "Provide the data pill with a schema for the Avro data source.",
+                "type": "string",
+                "name": "avro_dynamic_table_schema"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Column relaxation",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "sticky": true,
+                "optional": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.schema_type === 'defined'",
+                "optionalExpression": "parentInput.data_source_type && parentInput.data_source_type === 'wdb_table' || parentInput.schema_type !== 'defined'",
+                "default": "false",
+                "hint": "                    Select <b>Yes</b> if the incoming source data may contain additional columns than the schema provided.\n                    Select <b>No</b> to exactly match schema with the data, and it returns error if additional columns are encountered.\n",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Column relaxation",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "sticky": true,
+                  "optional": true,
+                  "render_input": "boolean_conversion",
+                  "parse_output": "boolean_conversion",
+                  "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.schema_type === 'defined'",
+                  "optionalExpression": "parentInput.data_source_type && parentInput.data_source_type === 'wdb_table' || parentInput.schema_type !== 'defined'",
+                  "default": false,
+                  "hint": "                    Select <b>Yes</b> if the incoming source data may contain additional columns than the schema provided.\n                    Select <b>No</b> to exactly match schema with the data, and it returns error if additional columns are encountered.\n",
+                  "type": "boolean",
+                  "name": "allow_relaxed_schema"
+                },
+                "type": "boolean",
+                "name": "allow_relaxed_schema"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Contains header",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "sticky": true,
+                "optional": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'csv' && parentInput.schema_type !== 'infer'",
+                "default": "false",
+                "hint": "                    Select <b>Yes</b> if the incoming data contains header as the first row. If so, SQL transformations will understand the columns in the file by name matching the first row in the file with the schema provided.\n                    If <b>No</b> is chosen, the column schema provided will be matched to the order of the columns in the file from left to right.\n",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Contains header",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "sticky": true,
+                  "optional": true,
+                  "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'csv' && parentInput.schema_type !== 'infer'",
+                  "default": false,
+                  "render_input": "boolean_conversion",
+                  "parse_output": "boolean_conversion",
+                  "hint": "                    Select <b>Yes</b> if the incoming data contains header as the first row. If so, SQL transformations will understand the columns in the file by name matching the first row in the file with the schema provided.\n                    If <b>No</b> is chosen, the column schema provided will be matched to the order of the columns in the file from left to right.\n",
+                  "type": "boolean",
+                  "name": "csv_ignore_header"
+                },
+                "type": "boolean",
+                "name": "csv_ignore_header"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Contains header",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "sticky": true,
+                "optional": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'excel' && parentInput.schema_type !== 'infer'",
+                "hint": "Set to <b>Yes</b> if the Excel range contain a header row that needs to be ignored. Default is set to No.",
+                "default": "false",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Contains header",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "sticky": true,
+                  "optional": true,
+                  "render_input": "boolean_conversion",
+                  "parse_output": "boolean_conversion",
+                  "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'excel' && parentInput.schema_type !== 'infer'",
+                  "hint": "Set to <b>Yes</b> if the Excel range contain a header row that needs to be ignored. Default is set to No.",
+                  "default": false,
+                  "type": "boolean",
+                  "name": "excel_ignore_header"
+                },
+                "type": "boolean",
+                "name": "excel_ignore_header"
+              },
+              {
+                "control_type": "select",
+                "label": "Header matching",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.schema_type !== 'infer' &&((parentInput.file_format == 'csv' && parentInput.csv_ignore_header === 'true') || (parentInput.file_format == 'excel' && parentInput.excel_ignore_header === 'true'))",
+                "optional": true,
+                "sticky": true,
+                "pick_list": [
+                  [
+                    "Ordered",
+                    "ordered"
+                  ],
+                  [
+                    "Named",
+                    "named"
+                  ]
+                ],
+                "hint": "Choose how to match header with schema columns",
+                "default": "ordered",
+                "type": "string",
+                "name": "matching_mode"
+              },
+              {
+                "control_type": "select",
+                "label": "Column delimiter",
+                "pick_list": "csv_delimiters",
+                "sticky": true,
+                "optional": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'csv'",
+                "hint": "Select the character that separates columns in the CSV contents. Default is set to comma.",
+                "default": "comma",
+                "type": "string",
+                "name": "csv_delimiter"
+              }
+            ],
+            "sticky": true,
+            "type": "array"
+          },
+          {
+            "initially_expanded": true,
+            "label": "Query",
+            "name": "query",
+            "optional": false,
+            "override": true,
+            "properties": [
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "broadcast_change_event": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+
+                    ],
+                    "label": "Data",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "label": "Query parameters",
+                "control_type": "form-schema-builder",
+                "item_label": "parameter",
+                "exclude_fields": [
+                  "hint"
+                ],
+                "optional": true,
+                "override": true,
+                "sticky": true,
+                "schema_field_name_regex": [
+                  "^[a-zA-Z][\\w]*$",
+                  "Query parameter names only allow alphanumerical symbols and underscore (_)"
+                ],
+                "force_name_label_equality": true,
+                "hint": "Add the parameters to be used in the WHERE condition of the query below. e.g. id.\nNext, add the actual parameter value, which can be static or datapills.\nSelect the closest corresponding data type that your database is expecting for the bind variable\n",
+                "type": "object",
+                "name": "parameters"
+              },
+              {
+                "control_type": "code",
+                "label": "SQL query",
+                "language": "sql",
+                "sql_mime_type": "x-sql",
+                "support_pills": true,
+                "allow_formula_mode": true,
+                "sticky": true,
+                "optional": false,
+                "hint": "            Add SQL select statement to query one or more data sources.\n            Joins and more complex functions are also supported, more details available <a href=\"https://docs.workato.com/features/sql-transformations-query-setting.html\" target=\"_blank\">here</a>.\n            To add parameters in the WHERE condition, use bind variables notation, e.g. id = @id, where id denotes the field name from the parameters section above.\n",
+                "type": "string",
+                "name": "sql_select_query"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "e6dfb1a4-c9f2-4461-9385-76ef8c26bfc3"
+      },
+      {
+        "number": 2,
+        "provider": "csv_parser",
+        "name": "parse_csv",
+        "as": "5511eaab",
+        "keyword": "action",
+        "input": {
+          "col_sep": ",",
+          "skip_first_line": "true",
+          "column_value_by": "index",
+          "quote_char": "\"",
+          "csv_content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_transformations\",\"line\":\"43cbdd3b\",\"path\":[\"content\"]}')}",
+          "header_schema": "[{\"name\":\"ExternalCaseID\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"External case ID\"},{\"name\":\"Priority\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Priority\"},{\"name\":\"Subject\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Subject\"},{\"name\":\"Description\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Description\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Lines",
+            "name": "lines",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "ExternalCaseID",
+                "type": "string",
+                "name": "column_0"
+              },
+              {
+                "control_type": "text",
+                "label": "Priority",
+                "type": "string",
+                "name": "column_1"
+              },
+              {
+                "control_type": "text",
+                "label": "Subject",
+                "type": "string",
+                "name": "column_2"
+              },
+              {
+                "control_type": "text",
+                "label": "Description",
+                "type": "string",
+                "name": "column_3"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "d46392d2-d562-43ae-91ef-70d6b5ea80e6"
+      },
+      {
+        "number": 3,
+        "as": "1852fbb4",
+        "keyword": "foreach",
+        "repeat_mode": "simple",
+        "clear_scope": "false",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 4,
+            "provider": "jira",
+            "name": "create_issue",
+            "as": "231210bb",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "project_issuetype": {
+                "ids": [
+                  "Workato iPaaS Lab@@WIL",
+                  "WIL--Task"
+                ],
+                "titles": [
+                  "Workato iPaaS Lab",
+                  "Workato iPaaS Lab : Task"
+                ]
+              },
+              "sample_project_issuetype": {
+                "ids": [
+                  "Workato iPaaS Lab@@WIL",
+                  "WIL--Task"
+                ],
+                "titles": [
+                  "Workato iPaaS Lab",
+                  "Workato iPaaS Lab : Task"
+                ]
+              }
+            },
+            "toggleCfg": {
+              "project_issuetype": true,
+              "sample_project_issuetype": true,
+              "priority": false
+            },
+            "input": {
+              "project_issuetype": "WIL--Task",
+              "sample_project_issuetype": "WIL--Task",
+              "summary": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"1852fbb4\",\"path\":[\"column_2\"]}')}",
+              "description": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"csv_parser\",\"line\":\"5511eaab\",\"path\":[\"lines\",{\"path_element_type\":\"current_item\"},\"column_3\"]}')}",
+              "priority": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"1852fbb4\",\"path\":[\"column_1\"]}')}",
+              "labels": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"1852fbb4\",\"path\":[\"column_0\"]}')}"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "custom": false,
+                "hint": "Provide issue ID or key of parent issue, e.g. <b>10105</b> (issue ID) or <b>ABC-123</b> (issue key).Use issue ID if your issue moves between projects.",
+                "label": "Parent",
+                "name": "parent",
+                "optional": true,
+                "type": "string",
+                "customtype": "parent"
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "",
+                "label": "Request Type",
+                "name": "customfield_10010",
+                "optional": true,
+                "type": "string",
+                "customtype": "vp-origin"
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "Enter request participants separated by commas. If the values have comma in it, make sure to give it as array of string using formula mode. For example: <b>[\"A,B,C\", \"D,E,F\"]</b>",
+                "label": "Request participants",
+                "name": "customfield_10037",
+                "optional": true,
+                "type": "string",
+                "customtype": "sd-request-participants"
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "",
+                "label": "Request language",
+                "name": "customfield_10040",
+                "optional": true,
+                "type": "string",
+                "customtype": "sd-request-language"
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "",
+                "label": "Urgency",
+                "name": "customfield_10041",
+                "optional": true,
+                "type": "string",
+                "customtype": "select"
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "",
+                "label": "Pending reason",
+                "name": "customfield_10042",
+                "optional": true,
+                "type": "string",
+                "customtype": "select"
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "Enter affected services separated by commas. If the values have comma in it, make sure to give it as array of string using formula mode. For example: <b>[\"A,B,C\", \"D,E,F\"]</b>",
+                "label": "Affected services",
+                "name": "customfield_10043",
+                "optional": true,
+                "type": "string",
+                "customtype": "service-entity-field-cftype"
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "Enter approver groups separated by commas. If the values have comma in it, make sure to give it as array of string using formula mode. For example: <b>[\"A,B,C\", \"D,E,F\"]</b>",
+                "label": "Approver groups",
+                "name": "customfield_10044",
+                "optional": true,
+                "type": "string",
+                "customtype": "multigrouppicker"
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "",
+                "label": "Team",
+                "name": "customfield_10001",
+                "optional": true,
+                "type": "string",
+                "customtype": "atlassian-team"
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "Enter organizations separated by commas. If the values have comma in it, make sure to give it as array of string using formula mode. For example: <b>[\"A,B,C\", \"D,E,F\"]</b>",
+                "label": "Organizations",
+                "name": "customfield_10002",
+                "optional": true,
+                "type": "string",
+                "customtype": "sd-customer-organizations"
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "Enter approvers separated by commas. If the values have comma in it, make sure to give it as array of string using formula mode. For example: <b>[\"A,B,C\", \"D,E,F\"]</b>",
+                "label": "Approvers",
+                "name": "customfield_10003",
+                "optional": true,
+                "type": "string",
+                "customtype": "multiuserpicker"
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "",
+                "label": "Impact",
+                "name": "customfield_10004",
+                "optional": true,
+                "type": "string",
+                "customtype": "select"
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "",
+                "label": "Satisfaction",
+                "name": "customfield_10038",
+                "optional": true,
+                "type": "string",
+                "customtype": "sd-request-feedback"
+              }
+            ],
+            "visible_config_fields": [
+              "project_issuetype",
+              "sample_project_issuetype",
+              "reporter_id",
+              "assignee_id",
+              "description",
+              "summary",
+              "priority",
+              "labels"
+            ],
+            "uuid": "e2018bfb-a197-47d3-bf43-401f423a528f"
+          },
+          {
+            "number": 5,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"jira\",\"line\":\"231210bb\",\"path\":[\"id\"]}')}",
+                  "rhs": "",
+                  "uuid": "d32529b9-67c8-468a-8b02-cee808844944"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 6,
+                "provider": "workato_db_table",
+                "name": "get_records",
+                "as": "3c214f11",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "table_id": "Imported Cases",
+                  "filters.0.field_id": "External Case ID"
+                },
+                "input": {
+                  "order_direction": "asc",
+                  "limit": "100",
+                  "table_id": {
+                    "zip_name": "Workato Academy - Foundation 1&2/Foundation Level 2/imported_cases.workato_db_table.json",
+                    "name": "Imported Cases",
+                    "folder": "Workato Academy - Foundation 1&2/Foundation Level 2"
+                  },
+                  "1252caef-d4c6-47b6-8dfd-02c4c1a379ca": "string",
+                  "e853af3d-dca6-44f7-ba13-57255c607848": "string",
+                  "c3e3b8ec-27ef-4b1f-852d-91902b32c538": "string",
+                  "be376d9c-e489-4af9-975d-dbb46e0ae7c6": "string",
+                  "981da5cd-aa0b-468a-836e-683487c42080": "string",
+                  "322a10c0-12aa-4e64-a5ad-09fef65ac466": "string",
+                  "c8ca61d2-7453-44a5-8e7f-db03f65b2441": "string",
+                  "230f8ece-87ea-411d-9794-e0a6233362e9": "string",
+                  "672eea70-de3d-47ae-a1e7-a18fa04d83fe": "string",
+                  "84706134-d8bc-418b-8784-f3073b7c9c63": "string",
+                  "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                  "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                  "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                  "filters": [
+                    {
+                      "field_id": "1252caef-d4c6-47b6-8dfd-02c4c1a379ca",
+                      "op_default": "eq",
+                      "value_default": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"1852fbb4\",\"path\":[\"column_0\"]}')}"
+                    }
+                  ]
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Records",
+                    "name": "records",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Record ID",
+                        "type": "string",
+                        "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "External Case ID",
+                        "type": "string",
+                        "name": "1252caef_d4c6_47b6_8dfd_02c4c1a379ca"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Priority",
+                        "type": "string",
+                        "name": "e853af3d_dca6_44f7_ba13_57255c607848"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "type": "string",
+                        "name": "c3e3b8ec_27ef_4b1f_852d_91902b32c538"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Subject",
+                        "type": "string",
+                        "name": "be376d9c_e489_4af9_975d_dbb46e0ae7c6"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Case Origin",
+                        "type": "string",
+                        "name": "981da5cd_aa0b_468a_836e_683487c42080"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "type": "string",
+                        "name": "322a10c0_12aa_4e64_a5ad_09fef65ac466"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PROCESS STATUS",
+                        "type": "string",
+                        "name": "c8ca61d2_7453_44a5_8e7f_db03f65b2441"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PROCESS ERROR",
+                        "type": "string",
+                        "name": "230f8ece_87ea_411d_9794_e0a6233362e9"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Salesforce Case ID",
+                        "type": "string",
+                        "name": "672eea70_de3d_47ae_a1e7_a18fa04d83fe"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Jira Ticket",
+                        "type": "string",
+                        "name": "84706134_d8bc_418b_8784_f3073b7c9c63"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "Created at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "Updated at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Next Page Token",
+                    "name": "continuation_token",
+                    "type": "string"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_1252caef-d4c6-47b6-8dfd-02c4c1a379ca",
+                    "name": "1252caef-d4c6-47b6-8dfd-02c4c1a379ca",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_e853af3d-dca6-44f7-ba13-57255c607848",
+                    "name": "e853af3d-dca6-44f7-ba13-57255c607848",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_c3e3b8ec-27ef-4b1f-852d-91902b32c538",
+                    "name": "c3e3b8ec-27ef-4b1f-852d-91902b32c538",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_be376d9c-e489-4af9-975d-dbb46e0ae7c6",
+                    "name": "be376d9c-e489-4af9-975d-dbb46e0ae7c6",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_981da5cd-aa0b-468a-836e-683487c42080",
+                    "name": "981da5cd-aa0b-468a-836e-683487c42080",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_322a10c0-12aa-4e64-a5ad-09fef65ac466",
+                    "name": "322a10c0-12aa-4e64-a5ad-09fef65ac466",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_c8ca61d2-7453-44a5-8e7f-db03f65b2441",
+                    "name": "c8ca61d2-7453-44a5-8e7f-db03f65b2441",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_230f8ece-87ea-411d-9794-e0a6233362e9",
+                    "name": "230f8ece-87ea-411d-9794-e0a6233362e9",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_672eea70-de3d-47ae-a1e7-a18fa04d83fe",
+                    "name": "672eea70-de3d-47ae-a1e7-a18fa04d83fe",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_84706134-d8bc-418b-8784-f3073b7c9c63",
+                    "name": "84706134-d8bc-418b-8784-f3073b7c9c63",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "id",
+                    "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                    "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "date_time",
+                    "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                    "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "date_time",
+                    "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                    "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "uuid": "f37fdfea-cef8-42c0-9cbf-859ae3634533"
+              },
+              {
+                "number": 7,
+                "provider": "workato_db_table",
+                "name": "update_record",
+                "as": "81012a23",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "table_id": "Imported Cases"
+                },
+                "input": {
+                  "table_id": {
+                    "zip_name": "Workato Academy - Foundation 1&2/Foundation Level 2/imported_cases.workato_db_table.json",
+                    "name": "Imported Cases",
+                    "folder": "Workato Academy - Foundation 1&2/Foundation Level 2"
+                  },
+                  "record_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"3c214f11\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
+                  "parameters": {
+                    "84706134_d8bc_418b_8784_f3073b7c9c63": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"jira\",\"line\":\"231210bb\",\"path\":[\"self\"]}')}"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Record",
+                    "name": "record",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Record ID",
+                        "type": "string",
+                        "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "External Case ID",
+                        "type": "string",
+                        "name": "1252caef_d4c6_47b6_8dfd_02c4c1a379ca"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Priority",
+                        "type": "string",
+                        "name": "e853af3d_dca6_44f7_ba13_57255c607848"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "type": "string",
+                        "name": "c3e3b8ec_27ef_4b1f_852d_91902b32c538"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Subject",
+                        "type": "string",
+                        "name": "be376d9c_e489_4af9_975d_dbb46e0ae7c6"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Case Origin",
+                        "type": "string",
+                        "name": "981da5cd_aa0b_468a_836e_683487c42080"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "type": "string",
+                        "name": "322a10c0_12aa_4e64_a5ad_09fef65ac466"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PROCESS STATUS",
+                        "type": "string",
+                        "name": "c8ca61d2_7453_44a5_8e7f_db03f65b2441"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PROCESS ERROR",
+                        "type": "string",
+                        "name": "230f8ece_87ea_411d_9794_e0a6233362e9"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Salesforce Case ID",
+                        "type": "string",
+                        "name": "672eea70_de3d_47ae_a1e7_a18fa04d83fe"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Jira Ticket",
+                        "type": "string",
+                        "name": "84706134_d8bc_418b_8784_f3073b7c9c63"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "Created at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "Updated at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Fill out the fields that need to be updated. Fields that are left blank will not be updated.",
+                    "label": "Update record fields with new inputs",
+                    "name": "parameters",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "External Case ID",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "1252caef_d4c6_47b6_8dfd_02c4c1a379ca"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Priority",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "e853af3d_dca6_44f7_ba13_57255c607848"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "c3e3b8ec_27ef_4b1f_852d_91902b32c538"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Subject",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "be376d9c_e489_4af9_975d_dbb46e0ae7c6"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Case Origin",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "981da5cd_aa0b_468a_836e_683487c42080"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "optional": true,
+                        "sticky": false,
+                        "type": "string",
+                        "name": "322a10c0_12aa_4e64_a5ad_09fef65ac466"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PROCESS STATUS",
+                        "optional": true,
+                        "sticky": false,
+                        "type": "string",
+                        "name": "c8ca61d2_7453_44a5_8e7f_db03f65b2441"
+                      },
+                      {
+                        "control_type": "text-area",
+                        "label": "PROCESS ERROR",
+                        "optional": true,
+                        "sticky": false,
+                        "type": "string",
+                        "name": "230f8ece_87ea_411d_9794_e0a6233362e9"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Salesforce Case ID",
+                        "optional": true,
+                        "sticky": false,
+                        "type": "string",
+                        "name": "672eea70_de3d_47ae_a1e7_a18fa04d83fe"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Jira Ticket",
+                        "optional": true,
+                        "sticky": false,
+                        "type": "string",
+                        "name": "84706134_d8bc_418b_8784_f3073b7c9c63"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "table_id",
+                  "parameters.1252caef_d4c6_47b6_8dfd_02c4c1a379ca",
+                  "parameters.e853af3d_dca6_44f7_ba13_57255c607848",
+                  "parameters.c3e3b8ec_27ef_4b1f_852d_91902b32c538",
+                  "parameters.be376d9c_e489_4af9_975d_dbb46e0ae7c6",
+                  "parameters.981da5cd_aa0b_468a_836e_683487c42080",
+                  "parameters.84706134_d8bc_418b_8784_f3073b7c9c63"
+                ],
+                "uuid": "c849cc93-4918-4cd3-a704-a275588cad12"
+              }
+            ],
+            "uuid": "5c4c1673-5f40-482f-bb94-84900351fdc3"
+          }
+        ],
+        "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"csv_parser\",\"line\":\"5511eaab\",\"path\":[\"lines\"]}')}",
+        "uuid": "2c9b6a1b-f01b-4d5a-8d61-641dbc522765"
+      }
+    ],
+    "uuid": "6f74f11a-a95a-4dc9-bfde-6eb520f01793"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_transformations",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "csv_parser",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "jira",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Workato Academy - Foundation 1&2/Foundation Level 2/Connections/training_jira.connection.json",
+        "name": "Training Jira",
+        "folder": "Workato Academy - Foundation 1&2/Foundation Level 2/Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_db_table",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
