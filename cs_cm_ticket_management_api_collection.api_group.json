@@ -1,0 +1,7 @@
+{
+  "name": "[CS][CM] Ticket Management API Collection",
+  "version": "1",
+  "description": "API Endpoints for Ticket Management",
+  "handle": "cs-cm-ticket-management-api-collection-v1",
+  "use_prefix": true
+}

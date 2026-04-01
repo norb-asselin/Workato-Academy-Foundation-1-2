@@ -1,0 +1,127 @@
+{
+  "name": "Imported Cases",
+  "schema": [
+    {
+      "id": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+      "title": "Record ID",
+      "type": "short-text",
+      "read_only": true,
+      "hidden": true
+    },
+    {
+      "id": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+      "title": "Created time",
+      "type": "date-time",
+      "read_only": true,
+      "hidden": true
+    },
+    {
+      "id": "61aae604-a95e-4519-9091-bb0bf754a67f",
+      "title": "Last modified time",
+      "type": "date-time",
+      "read_only": true,
+      "hidden": true
+    },
+    {
+      "id": "1252caef-d4c6-47b6-8dfd-02c4c1a379ca",
+      "title": "ExternalCaseID",
+      "type": "short-text",
+      "read_only": false,
+      "hidden": false,
+      "required": false,
+      "metadata": {
+      }
+    },
+    {
+      "id": "e853af3d-dca6-44f7-ba13-57255c607848",
+      "title": "Priority",
+      "type": "short-text",
+      "read_only": false,
+      "hidden": false,
+      "required": false,
+      "metadata": {
+      }
+    },
+    {
+      "id": "c3e3b8ec-27ef-4b1f-852d-91902b32c538",
+      "title": "Status",
+      "type": "short-text",
+      "read_only": false,
+      "hidden": false,
+      "required": false,
+      "metadata": {
+      }
+    },
+    {
+      "id": "be376d9c-e489-4af9-975d-dbb46e0ae7c6",
+      "title": "Subject",
+      "type": "short-text",
+      "read_only": false,
+      "hidden": false,
+      "required": false,
+      "metadata": {
+      }
+    },
+    {
+      "id": "981da5cd-aa0b-468a-836e-683487c42080",
+      "title": "Case Origin",
+      "type": "short-text",
+      "read_only": false,
+      "hidden": false,
+      "required": false,
+      "metadata": {
+      }
+    },
+    {
+      "id": "322a10c0-12aa-4e64-a5ad-09fef65ac466",
+      "title": "Reason",
+      "type": "short-text",
+      "read_only": false,
+      "hidden": false,
+      "required": false,
+      "metadata": {
+      }
+    },
+    {
+      "id": "c8ca61d2-7453-44a5-8e7f-db03f65b2441",
+      "title": "PROCESS STATUS",
+      "type": "short-text",
+      "read_only": false,
+      "hidden": false,
+      "required": false,
+      "metadata": {
+      }
+    },
+    {
+      "id": "230f8ece-87ea-411d-9794-e0a6233362e9",
+      "title": "PROCESS ERROR",
+      "type": "long-text",
+      "read_only": false,
+      "hidden": false,
+      "required": false,
+      "metadata": {
+      }
+    },
+    {
+      "id": "672eea70-de3d-47ae-a1e7-a18fa04d83fe",
+      "title": "Salesforce Case ID",
+      "type": "short-text",
+      "read_only": false,
+      "hidden": false,
+      "required": false,
+      "metadata": {
+      }
+    },
+    {
+      "id": "84706134-d8bc-418b-8784-f3073b7c9c63",
+      "title": "Jira Ticket",
+      "type": "short-text",
+      "read_only": false,
+      "hidden": false,
+      "required": false,
+      "metadata": {
+      }
+    }
+  ],
+  "project_name": "Workato Academy - Foundation 1&2"
+}
